@@ -1,0 +1,115 @@
+# Hybrid Multi-Modal Phishing Detection System Configuration
+
+# General Settings
+general:
+  project_name: "Hybrid Phishing Detector"
+  version: "1.0.0"
+  debug: true
+  random_seed: 42
+
+# Data Paths
+paths:
+  data_dir: "data"
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  screenshots: "data/screenshots"
+  models: "models"
+  logs: "logs"
+
+# URL Analysis Module
+url_analysis:
+  model_type: "xgboost"  # Options: random_forest, xgboost, lightgbm
+  features:
+    - url_length
+    - num_dots
+    - num_hyphens
+    - num_underscores
+    - num_slashes
+    - num_digits
+    - num_special_chars
+    - has_ip_address
+    - has_at_symbol
+    - domain_length
+    - subdomain_length
+    - path_length
+    - query_length
+    - has_https
+    - domain_age_days
+    - entropy
+  model_params:
+    n_estimators: 100
+    max_depth: 10
+    learning_rate: 0.1
+    random_state: 42
+
+# Visual Analysis Module
+visual_analysis:
+  model_type: "resnet50"  # Options: resnet50, vit, efficientnet
+  image_size: 224
+  batch_size: 32
+  pretrained: true
+  screenshot:
+    width: 1920
+    height: 1080
+    timeout: 30
+    headless: true
+  training:
+    epochs: 50
+    learning_rate: 0.001
+    weight_decay: 0.0001
+
+# LLM Explainability Module
+llm_explainer:
+  provider: "openai"  # Options: openai, local, huggingface
+  model: "gpt-4"
+  temperature: 0.3
+  max_tokens: 500
+  prompt_template: |
+    Analyze the following phishing detection results and provide a clear explanation:
+    
+    URL Analysis Score: {url_score}
+    URL Features: {url_features}
+    Visual Analysis Score: {visual_score}
+    Visual Features: {visual_features}
+    Combined Prediction: {prediction}
+    
+    Provide a concise explanation of why this website is classified as {classification}.
+    Include specific indicators and their significance.
+
+# Hybrid Detector Settings
+hybrid_detector:
+  fusion_method: "weighted_average"  # Options: weighted_average, voting, stacking, attention
+  weights:
+    url_analysis: 0.4
+    visual_analysis: 0.4
+    llm_reasoning: 0.2
+  threshold: 0.5
+  confidence_threshold: 0.7
+
+# API Settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  cors_origins:
+    - "http://localhost:3000"
+    - "http://127.0.0.1:3000"
+  rate_limit: 100  # requests per minute
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - accuracy
+    - precision
+    - recall
+    - f1_score
+    - roc_auc
+    - confusion_matrix
+  test_split: 0.2
+  cross_validation_folds: 5
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}"
+  rotation: "10 MB"
+  retention: "30 days"
